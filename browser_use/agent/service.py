@@ -223,7 +223,7 @@ class Agent(Generic[Context]):
 
 		# Start non-blocking LLM connection verification using create_task, checked later in step()
 		# This will run in parallel with browser launch without leaving dangling coroutines on unclean exits
-		self.llm._verified_api_keys = False
+		self.llm._verified_api_keys = False # type: ignore
 		self._verification_task = asyncio.create_task(self._verify_llm_connection())
 		self._verification_task.add_done_callback(lambda _: None)
 
@@ -697,7 +697,7 @@ class Agent(Generic[Context]):
 				# Create action from tool call
 				action = {tool_call_name: tool_call_args}
 
-				parsed = self.AgentOutput(current_state=current_state, action=[self.ActionModel(**action)])
+				parsed = self.AgentOutput(current_state=current_state, action=[self.ActionModel(**action)]) # type: ignore
 			else:
 				parsed = None
 		else:
@@ -790,7 +790,7 @@ class Agent(Generic[Context]):
 				pass
 
 		# Check that verification was successful
-		assert self.llm._verified_api_keys or SKIP_LLM_API_KEY_VERIFICATION, (
+		assert self.llm._verified_api_keys or SKIP_LLM_API_KEY_VERIFICATION, ( # type: ignore
 			'Failed to connect to LLM API or LLM API is not responding correctly'
 		)
 
@@ -1199,11 +1199,11 @@ class Agent(Generic[Context]):
 			error = f'LLM API Key environment variables not set up for {self.llm.__class__.__name__}, missing: {required_keys}'
 			logger.warning(f'❌ {error}')
 			if not SKIP_LLM_API_KEY_VERIFICATION:
-				self.llm._verified_api_keys = False
+				self.llm._verified_api_keys = False # type: ignore
 				raise ValueError(error)
 
 		if SKIP_LLM_API_KEY_VERIFICATION:  # skip roundtrip connection test for speed in cloud environment
-			self.llm._verified_api_keys = True
+			self.llm._verified_api_keys = True # type: ignore
 			return True
 
 		test_prompt = 'What is the capital of France? Respond with a single word.'
@@ -1216,7 +1216,7 @@ class Agent(Generic[Context]):
 				logger.debug(
 					f'🧠 LLM API keys {", ".join(required_keys)} verified, {self.llm.__class__.__name__} model is connected and responding correctly.'
 				)
-				self.llm._verified_api_keys = True
+				self.llm._verified_api_keys = True # type: ignore
 				return True
 			else:
 				logger.debug(
@@ -1227,7 +1227,7 @@ class Agent(Generic[Context]):
 				)
 				raise Exception('LLM responded to a simple test question incorrectly')
 		except Exception as e:
-			self.llm._verified_api_keys = False
+			self.llm._verified_api_keys = False # type: ignore
 			logger.error(
 				f'\n\n❌  LLM {self.llm.__class__.__name__} connection test failed. Check that {", ".join(required_keys)} is set correctly in .env and that the LLM API account has sufficient funding.\n\n{e}\n'
 			)
